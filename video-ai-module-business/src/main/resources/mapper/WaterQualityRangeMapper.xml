@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dsunsoft.module.business.dao.WaterQualityRangeMapper">
+    <resultMap id="BaseResultMap" type="com.dsunsoft.module.business.entity.WaterQualityRange">
+        <id column="id" property="id"/>
+        <result column="code" property="code" />
+        <result column="name" property="name" />
+        <result column="unit" property="unit" />
+        <result column="range_type" property="rangeType" />
+        <result column="warning_count" property="warningCount" />
+        <result column="max" property="max" />
+        <result column="min" property="min" />
+        <result column="other" property="other" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id ,
+        code ,
+        name ,
+        unit ,
+        range_type ,
+        warning_count ,
+        max ,
+        min ,
+        other ,
+        remarks ,
+        create_by ,
+        create_date ,
+        update_by ,
+        update_date ,
+        del_flag
+     </sql>
+    <sql id="Base_Column_List2">
+        t1.id AS id ,
+        t1.code AS code ,
+        t1.name AS name ,
+        t1.unit AS unit ,
+        t1.range_type AS rangeType ,
+        t1.warning_count AS warningCount ,
+        t1.max AS max ,
+        t1.min AS min ,
+        t1.other AS other ,
+        t1.remarks AS remarks ,
+        t1.create_by AS createBy ,
+        t1.create_date AS createDate ,
+        t1.update_by AS updateBy ,
+        t1.update_date AS updateDate ,
+        t1.del_flag AS delFlag
+    </sql>
+    <select id="findList" resultType="com.dsunsoft.module.business.entity.WaterQualityRange" >
+         SELECT
+                           t1.id AS id ,                           t1.code AS code ,                           t1.name AS name ,                           t1.unit AS unit ,                           t1.range_type AS rangeType , t1.warning_count as warningCount,                         t1.max AS max ,                           t1.min AS min ,                           t1.other AS other ,                           t1.remarks AS remarks ,                           t1.create_by AS createBy ,                           t1.create_date AS createDate ,                           t1.update_by AS updateBy ,                           t1.update_date AS updateDate ,                           t1.del_flag AS delFlag                      FROM water_quality_range t1
+        <where>
+            <if test="code != null and code != ''">
+                AND t1.code = #{code}
+            </if>
+            <if test="name != null and name != ''">
+                AND t1.name = #{name}
+            </if>
+            <if test="unit != null and unit != ''">
+                AND t1.unit = #{unit}
+            </if>
+            <if test="rangeType != null">
+                AND t1.range_type = #{rangeType}
+            </if>
+        </where>
+    </select>
+    <select id="getById" resultType="com.dsunsoft.module.business.entity.WaterQualityRange" >
+        SELECT
+                           t1.id AS id ,                           t1.code AS code ,                           t1.name AS name ,                           t1.unit AS unit ,
+                                  t1.range_type AS rangeType ,
+                                  t1.warning_count AS warningCount ,
+                                                 t1.max AS max ,                           t1.min AS min ,                           t1.other AS other ,                           t1.remarks AS remarks ,                           t1.create_by AS createBy ,                           t1.create_date AS createDate ,                           t1.update_by AS updateBy ,                           t1.update_date AS updateDate ,                           t1.del_flag AS delFlag                      FROM water_quality_range t1
+        <where>
+            t1.id = #{id,jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <select id="getWarningCount" resultType="java.lang.Integer">
+        select sum(t1.warning_count) warningCount from water_quality_range t1
+        <where>
+            <if test="code != null and code != ''">
+                AND t1.code = #{code}
+            </if>
+        </where>
+    </select>
+
+    <select id="getWaterQualityRangeCount" resultType="java.lang.Integer">
+        select count(*) cnt from water_quality_range t1
+        <where>
+            <if test="code != null and code != ''">
+                AND t1.code = #{code}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.dsunsoft.module.business.entity.WaterQualityRange">
+        insert into water_quality_range ( 
+                          id ,                           code ,                           name ,                           unit ,                           range_type ,warning_count,                           max ,                           min ,                           other ,                           remarks ,                           create_by ,                           create_date ,                           update_by ,                           update_date ,                           del_flag                      )
+        values (
+                          #{id} ,                           #{code} ,                           #{name} ,                           #{unit} ,                           #{rangeType} ,  #{warningCount},                         #{max} ,                           #{min} ,                           #{other} ,                           #{remarks} ,                           #{createBy} ,                           #{createDate} ,                           #{updateBy} ,                           #{updateDate} ,                           #{delFlag}                      )
+    </insert>
+    <update id="update" parameterType="com.dsunsoft.module.business.entity.WaterQualityRange">
+        update water_quality_range
+        set
+           code = #{code},
+           name = #{name},
+           unit = #{unit},
+           range_type = #{rangeType},
+           warning_count = #{warningCount},
+           max = #{max},
+           min = #{min},
+           other = #{other},
+           remarks = #{remarks},
+           create_by = #{createBy},
+           create_date = #{createDate},
+           update_by = #{updateBy},
+           update_date = #{updateDate}
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateWarningCount" parameterType="com.dsunsoft.module.business.dto.UpdateWarningCountDto">
+        update water_quality_range
+        set
+           warning_count = IFNULL(warning_count, 0) + 1
+        where code = #{code}
+    </update>
+
+    <!--物理删除-->
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM water_quality_range
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </delete>
+    <!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE water_quality_range SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

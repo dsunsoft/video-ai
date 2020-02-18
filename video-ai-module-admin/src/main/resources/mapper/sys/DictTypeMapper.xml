@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.DictTypeMapper">
+    
+	<sql id="dictTypeColumns">
+		a.id AS "id",
+		a.type AS "type",
+		a.description AS "description",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="dictTypeJoins">
+	</sql>
+	
+	 <resultMap type="com.dsunsoft.module.admin.entity.sys.DictType" id="dictTypeMap">
+        <id column="id" property="id"/> 
+		<result column="type" property="type" />
+		<result column="description" property="description" />
+		<result column="create_by" property="createBy"/>
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+		<result column="del_flag" property="delFlag" />  
+   	</resultMap>
+	
+	<resultMap type="com.dsunsoft.module.admin.entity.sys.DictType" id="dictTypeFullMap" extends="dictTypeMap"> 
+  	   <id column="id" property="id"/> 
+	    <collection property="dictValueList" javaType="ArrayList" 
+                ofType="com.dsunsoft.module.admin.entity.sys.DictValue">
+         <id property="id" column="d_id"/> 
+		 <result property="label" column="d_label"/>
+		 <result property="value" column="d_value"/>
+		 <result property="sort" column="d_sort"/>
+		 <result property="createBy" column="d_createBy"/>
+		 <result property="createDate" column="d_createDate"/>
+		 <result property="updateBy" column="d_updateBy"/>
+		 <result property="updateDate" column="d_updateDate"/>
+		 <result property="delFlag" column="d_delFlag"/>
+        </collection>
+    </resultMap>
+    
+	<select id="getById" resultType="com.dsunsoft.module.admin.entity.sys.DictType" >
+		SELECT 
+			<include refid="dictTypeColumns"/>
+		FROM sys_dict_type a
+		<include refid="dictTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.dsunsoft.module.admin.entity.sys.DictType" >
+		SELECT 
+			<include refid="dictTypeColumns"/>
+		FROM sys_dict_type a
+		<include refid="dictTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="type != null and type != ''">
+				AND a.type LIKE 
+					concat('%',#{type},'%')
+			</if>
+			<if test="description != null and description != ''">
+				AND a.description LIKE 
+					concat('%',#{description},'%')
+			</if>
+		</where>
+		<choose>
+			<when test="orderBy != null and orderBy != ''">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_dict_type(
+			id,
+			type,
+			description,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{type},
+			#{description},
+			#{createBy},
+			#{createDate},
+			#{updateBy},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_dict_type SET 	
+			type = #{type},
+			description = #{description},
+			update_by = #{updateBy},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="deleteById">
+		DELETE FROM sys_dict_type
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sys_dict_type SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="com.dsunsoft.module.admin.entity.sys.DictType" statementType="STATEMENT">
+		select * FROM sys_dict_type  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="getFullDicList" resultMap="dictTypeFullMap">
+		select
+			a.*,
+			b.id as d_id,
+			b.label as d_label,
+			b.value as d_value,
+			b.sort as d_sort,
+			b.create_by as d_createBy,
+			b.create_date as d_createDate,
+			b.update_by as d_updateBy,
+			b.update_date as d_updateDate,
+			b.del_flag as d_delFlag
+		from
+			sys_dict_type a
+		left join
+			sys_dict_value b
+		on
+			a.id=b.dict_type_id
+	</select>
+</mapper>

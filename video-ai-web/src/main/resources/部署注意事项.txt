@@ -1,0 +1,4 @@
+1.id序列自增运行程序需要改配置
+  java -jar video-ai-web-0.0.1-SNAPSHOT.jar  --spring.profiles.active=prod --video-ai.idWorker.workerId=1 --video-ai.idWorker.datacenterId=1
+2.mysql
+  权限使用了 group_concat，默认长度是1024需要改 SET SESSION group_concat_max_len = 102400;

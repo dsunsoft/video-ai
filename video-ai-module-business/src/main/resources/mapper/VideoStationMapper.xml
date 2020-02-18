@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dsunsoft.module.business.dao.VideoStationMapper">
+
+	<sql id="basicColumns">
+		t1.id AS id,
+		t1.device_id AS deviceId,
+		t1.channel_id AS channelId,
+		t1.live_status AS liveStatus,
+		t1.live_token AS liveToken,
+		t1.live_type AS liveType,
+		t1.live_mode AS liveMode,
+		t1.status AS status,
+		t1.cover_update AS coverUpdate,
+		t1.cover_url AS coverUrl,
+		t1.hls AS hls,
+		t1.stream_id AS streamId,
+		t1.period AS period,
+		t1.create_by AS "createBy",
+		t1.create_date AS "createDate",
+		t1.update_by AS "updateBy",
+		t1.update_date AS "updateDate",
+		t1.del_flag AS "delFlag"
+	</sql>
+	
+	
+	<select id="findList" resultType="com.dsunsoft.module.business.entity.VideoStation">
+		SELECT
+			<include refid="basicColumns" />
+		FROM video_station t1
+		<where>
+		    <if test="deviceId != null and deviceId != ''">
+				AND t1.device_id = #{deviceId}
+		    </if>
+		    <if test="channelId != null and channelId != ''">
+				AND t1.channel_id = #{channelId}
+		    </if>
+		</where>
+		<choose>
+			<when
+				test="orderBy != null and orderBy != ''">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+			    ORDER BY t1.device_id,t1.channel_id
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getById" resultType="com.dsunsoft.module.business.entity.VideoStation">
+		SELECT
+			<include refid="basicColumns" />
+		FROM video_station t1
+		WHERE t1.id = #{id}
+	</select>
+
+	<select id="getVideoStationCount" resultType="java.lang.Integer">
+		SELECT
+			count(*) as cnt
+		FROM video_station t1
+		<where>
+			<if test="deviceId != null and deviceId != ''">
+				AND t1.device_id = #{deviceId}
+			</if>
+			<if test="channelId != null and channelId != ''">
+				AND t1.channel_id = #{channelId}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="com.dsunsoft.module.business.entity.VideoStation">
+		INSERT INTO video_station(
+			id,
+			device_id,
+			channel_id,
+			live_status,
+			live_token,
+			live_type,
+			live_mode,
+			status,
+			cover_update,
+			cover_url,
+			hls,
+			stream_id,
+			period,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{deviceId},
+			#{channelId},
+			#{liveStatus},
+			#{liveToken},
+			#{liveType},
+			#{liveMode},
+			#{status},
+			#{coverUpdate},
+			#{coverUrl},
+			#{hls},
+			#{streamId},
+			#{period},
+			#{createBy},
+			#{createDate},
+			#{updateBy},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.dsunsoft.module.business.entity.VideoStation">
+		UPDATE video_station 
+		SET
+		  device_id = #{deviceId},
+		  channel_id = #{channelId},
+		  live_status = #{liveStatus},
+		  live_token = #{liveToken},
+		  live_type = #{liveType},
+		  live_mode = #{liveMode},
+		  status = #{status},
+		  cover_update = #{coverUpdate},
+		  cover_url = #{coverUrl},
+		  hls = #{hls},
+		  stream_id = #{streamId},
+		  period = #{period},
+		  update_date = #{updateDate},
+		  update_by = #{updateBy}
+		WHERE id = #{id}
+		  <!-- 
+		    <set>
+		    	<if test="deviceId != null">
+			    	device_id = #{deviceId},
+				</if>
+				<if test="channelId != null">
+					channel_id = #{channelId},
+				</if>
+				<if test="liveStatus != null">
+					live_status = #{liveStatus},
+				</if>
+				<if test="liveToken != null">
+					live_token = #{liveToken},
+				</if>
+				<if test="liveType != null">
+					live_type = #{liveType},
+				</if>
+				<if test="liveMode != null">
+					live_mode = #{liveMode},
+				</if>
+				<if test="status != null">
+					status = #{status},
+				</if>
+				<if test="coverUpdate != null">
+					cover_update = #{coverUpdate},
+				</if>
+				<if test="coverUrl != null">
+					cover_url = #{coverUrl},
+				</if>
+				<if test="hls != null">
+					hls = #{hls},
+				</if>
+				<if test="streamId != null">
+					stream_id = #{streamId},
+				</if>
+				<if test="updateDate != null">
+					update_date = #{updateDate},
+				</if>
+				<if test="updateBy != null">
+					update_by = #{updateBy}
+				</if>
+		    </set>
+		 -->
+	</update>
+	
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM video_station
+		WHERE id = #{id}
+	</update>
+	
+	<select id="checkData" parameterType="com.dsunsoft.module.business.entity.VideoStation" resultType="Integer">
+		SELECT
+			count(*)
+		FROM video_station
+		WHERE device_id = #{deviceId} AND channel_id = #{channelId}
+	</select>
+</mapper>

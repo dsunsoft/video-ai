@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.dsunsoft</groupId>
+	<artifactId>video-ai</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.1.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<modules>
+		<module>video-ai-common</module>
+		<module>video-ai-core</module>
+		<module>video-ai-module-admin</module>
+		<module>video-ai-module-business</module>
+		<module>video-ai-web</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<commons-text.version>1.4</commons-text.version>
+		<commons-io.version>2.6</commons-io.version>
+		<druid.version>1.1.9</druid.version>
+		<mssql.version>4.0</mssql.version>
+		<mybatis.version>1.3.2</mybatis.version>
+		<pagehelper.version>1.2.5</pagehelper.version>
+		<sharding-sphere.version>3.0.0</sharding-sphere.version>
+		<swagger2.version>2.7.0</swagger2.version>
+		<swagger-ui.version>2.7.0</swagger-ui.version>
+	</properties>
+
+	<!-- 版本说明：这里统一管理依赖的版本号 -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.dsunsoft</groupId>
+				<artifactId>video-ai-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dsunsoft</groupId>
+				<artifactId>video-ai-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dsunsoft</groupId>
+				<artifactId>video-ai-module-admin</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dsunsoft</groupId>
+				<artifactId>video-ai-module-business</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+	    <!-- 从依赖信息里移除 Tomcat配置 ,添加 Undertow依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+		<!-- 热部署 此热部署会遇到 java.lang.ClassCastException 异常-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- 测试 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

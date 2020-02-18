@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.DictValueMapper">
+    
+	<sql id="dictValueColumns">
+		a.id AS "id",
+		a.label AS "label",
+		a.value AS "value",
+		a.sort AS "sort",
+		a.dict_type_id AS "dictTypeId",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="dictValueJoins">
+		LEFT JOIN sys_dict_type b ON b.id = a.dict_type_id
+	</sql>
+	
+    
+	<select id="getById" resultType="com.dsunsoft.module.admin.entity.sys.DictValue" >
+		SELECT 
+			<include refid="dictValueColumns"/>
+		FROM sys_dict_value a
+		<include refid="dictValueJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getDictValues" resultType="com.dsunsoft.module.admin.entity.sys.DictSelectValue" >
+		SELECT
+            t11.id AS dictValueId,
+            t11.dict_type_id AS dictTypeId,
+            t11.label AS label,
+            t11.VALUE,
+            t11.sort AS sort,
+            t22.type AS type,
+            t22.description
+        FROM
+            sys_dict_value t11,
+            sys_dict_type t22
+        WHERE
+            t11.dict_type_id = t22.id
+            <if test="dictTypeId != null and dictTypeId != ''">
+                AND t11.dict_type_id = #{dictTypeId}
+            </if>
+            <if test="type != null and type != ''">
+		        AND t22.type = #{type}
+            </if>
+            order by t11.sort asc
+	</select>
+	
+	<select id="findList" resultType="com.dsunsoft.module.admin.entity.sys.DictValue" >
+		SELECT 
+			<include refid="dictValueColumns"/>
+		FROM sys_dict_value a
+		<include refid="dictValueJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="label != null and label != ''">
+				AND a.label LIKE 
+					concat('%',#{label},'%')
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value = #{value}
+			</if>
+			<if test="dictTypeId != null and dictTypeId != ''">
+				AND a.dict_type_id = #{dictTypeId}
+			</if>
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	<insert id="insert">
+		INSERT INTO sys_dict_value(
+			id,
+			label,
+			value,
+			sort,
+			dict_type_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{label},
+			#{value},
+			#{sort},
+			#{dictTypeId},
+			#{createBy},
+			#{createDate},
+			#{updateBy},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_dict_value SET 	
+			label = #{label},
+			value = #{value},
+			sort = #{sort},
+			dict_type_id = #{dictTypeId},
+			update_by = #{updateBy},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sys_dict_value
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE dict_type_id = #{dictTypeId}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sys_dict_value SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE dict_type_id = #{dictTypeId}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="com.dsunsoft.module.admin.entity.sys.DictValue" statementType="STATEMENT">
+		select * FROM sys_dict_value  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

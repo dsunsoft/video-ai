@@ -1,0 +1,101 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0
+      max-file-size: 20MB
+      max-request-size: 20MB
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+#数据库配置
+  datasource: 
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/video-ai?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driverClassName: com.mysql.cj.jdbc.Driver
+    tomcat:
+      testOnBorrow: true
+      validationQuery: SELECT 1
+    druid:
+      #连接池初始大小
+      initial-size: 10
+      #连接池最大
+      max-active: 200
+      #连接池最小
+      min-idle: 10
+      #等待超时时间
+      max-wait: 10000
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        #登录账号
+        login-username: admin
+        #登录密码
+        login-password: 123456
+        #设置白名单
+        allow: 127.0.0.1
+  
+#定时任务
+  quartz:
+    #数据存储方式
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    #属性配置
+    properties:
+      org:
+        quartz:
+          scheduler:
+            #ID设置为自动获取 每一个必须不同 （所有调度器实例中是唯一的）
+            instanceName: video-aiScheduler
+            #指定调度程序的主线程是否应该是守护线程
+            instanceId: AUTO
+          #数据持久化
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+            clusterCheckinInterval: 10000
+            useProperties: false
+            acquireTriggersWithinLock: true
+          #线程池设置
+          threadPool: 
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 5
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+#分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: false
+  supportMethodsArguments: true
+  params: count=countSql
+#自定义配置
+video-ai:
+  #Twitter_Snowflake配置
+  idWorker:
+    workerId: 0
+    datacenterId: 0
+  #上传文件配置
+  upload:
+    path: c:/upload/
+    relativeUrl: /upload/
+  #授权配置
+  oauth2:
+    storeType: jwt 
+    jwtSigningKey: dsunsoft
+    enableEncryption: true  #是否加密密码
+    clientId: dsunsoft
+    clientSecret: dsunsoft
+    expiresIn: 36000
+   #乐橙
+  lechange:
+    appId: lca325630f94094c25
+    appSecret: 573b5d480fde4785b0021c29c89a53
+    host: https://openapi.lechange.cn
+    port: 443

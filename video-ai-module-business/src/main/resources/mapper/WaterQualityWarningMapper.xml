@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dsunsoft.module.business.dao.WaterQualityWarningMapper">
+    <resultMap id="BaseResultMap" type="com.dsunsoft.module.business.entity.WaterQualityWarning">
+        <id column="id" property="id"/>
+         <result column="code" property="code" />
+         <result column="name" property="name" />
+         <result column="unit" property="unit" />
+         <result column="time" property="time" />
+         <result column="value" property="value" />
+         <result column="remarks" property="remarks" />
+         <result column="create_by" property="createBy" />
+         <result column="create_date" property="createDate" />
+         <result column="update_by" property="updateBy" />
+         <result column="update_date" property="updateDate" />
+         <result column="del_flag" property="delFlag" />
+    </resultMap>
+    <sql id="Base_Column_List">
+                id ,
+                        code ,
+                        name ,
+                        unit ,
+                        time ,
+                        value ,
+                        remarks ,
+                        create_by ,
+                        create_date ,
+                        update_by ,
+                        update_date ,
+                        del_flag             </sql>
+    <sql id="Base_Column_List2">
+                t1.id AS id ,
+                        t1.code AS code ,
+                        t1.name AS name ,
+                        t1.unit AS unit ,
+                        t1.time AS time ,
+                        t1.value AS value ,
+                        t1.remarks AS remarks ,
+                        t1.create_by AS createBy ,
+                        t1.create_date AS createDate ,
+                        t1.update_by AS updateBy ,
+                        t1.update_date AS updateDate ,
+                        t1.del_flag AS delFlag             </sql>
+    
+    <select id="findList" resultType="com.dsunsoft.module.business.entity.WaterQualityWarning">
+         SELECT
+                           t1.id AS id ,                           t1.code AS code ,                           t1.name AS name ,                           t1.unit AS unit ,                           t1.time AS time ,                           t1.value AS value ,                           t1.remarks AS remarks ,                           t1.create_by AS createBy ,                           t1.create_date AS createDate ,                           t1.update_by AS updateBy ,                           t1.update_date AS updateDate ,                           t1.del_flag AS delFlag                      FROM water_quality_warning t1
+        <where>
+              <if test="code != null and code != ''">
+              AND t1.code = #{code}
+              </if>
+              <if test="name != null and name != ''">
+              AND t1.name = #{name}
+              </if>
+             <if test="unit != null and unit != ''">
+              AND t1.unit = #{unit}
+              </if>
+              <if test="startTime != null">
+               and t1.time >= #{startTime}
+              </if>
+               <if test="endTime != null">
+                    and t1.time &lt;= #{endTime}
+               </if>
+         </where>
+        ORDER BY t1.time DESC , t1.code
+    </select>
+    
+    <select id="getById" resultType="com.dsunsoft.module.business.entity.WaterQualityWarning" >
+        SELECT
+                           t1.id AS id ,                           t1.code AS code ,                           t1.name AS name ,                           t1.unit AS unit ,                           t1.time AS time ,                           t1.value AS value ,                           t1.remarks AS remarks ,                           t1.create_by AS createBy ,                           t1.create_date AS createDate ,                           t1.update_by AS updateBy ,                           t1.update_date AS updateDate ,                           t1.del_flag AS delFlag                      FROM water_quality_warning t1
+        <where>
+            t1.id = #{id,jdbcType=VARCHAR}
+        </where>
+    </select>
+    
+    <insert id="insert" parameterType="com.dsunsoft.module.business.entity.WaterQualityWarning">
+        insert into water_quality_warning ( 
+                  id ,                  code ,                  name ,                  unit ,                  time ,                  value ,                  remarks ,                  create_by ,                  create_date ,                  update_by ,                  update_date ,                  del_flag                 )
+        values (
+                  #{id} ,                  #{code} ,                  #{name} ,                  #{unit} ,                  #{time} ,                  #{value} ,                  #{remarks} ,                  #{createBy} ,                  #{createDate} ,                  #{updateBy} ,                  #{updateDate} ,                  #{delFlag}                 )
+    </insert>
+    
+    <update id="update" parameterType="com.dsunsoft.module.business.entity.WaterQualityWarning">
+        update water_quality_warning
+        <set>
+                                                                    <if test="code != null">
+               code = #{code},
+              </if>
+                                                       <if test="name != null">
+               name = #{name},
+              </if>
+                                                       <if test="unit != null">
+               unit = #{unit},
+              </if>
+                                                       <if test="time != null">
+               time = #{time},
+              </if>
+                                                       <if test="value != null">
+               value = #{value},
+              </if>
+                                                       <if test="remarks != null">
+               remarks = #{remarks},
+              </if>
+                                                       <if test="createBy != null">
+               create_by = #{createBy},
+              </if>
+                                                       <if test="createDate != null">
+               create_date = #{createDate},
+              </if>
+                                                       <if test="updateBy != null">
+               update_by = #{updateBy},
+              </if>
+                                                       <if test="updateDate != null">
+               update_date = #{updateDate},
+              </if>
+                                                       <if test="delFlag != null">
+               del_flag = #{delFlag},
+              </if>
+                                   </set>
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+    
+    <!--物理删除-->
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM water_quality_warning
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </delete>
+    
+    <!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE water_quality_warning SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

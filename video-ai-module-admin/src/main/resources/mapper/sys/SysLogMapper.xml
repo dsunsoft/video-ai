@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.SysLogMapper">
+ <sql id="sysLogColumns">
+        a.id,
+		a.method,
+		a.title,
+		a.request_uri AS "requestUri",
+		a.remote_addr AS "remoteAddr",
+		a.create_date AS "createDate",
+		a.exception,
+		u.name AS "operBy",
+		c.name AS "operCompanyName",
+		o.name AS "operOfficeName"
+ </sql>
+	<select id="findList" resultType="com.dsunsoft.module.admin.entity.sys.SysLog">
+		SELECT
+		<include refid="sysLogColumns"/>
+		FROM sys_log a
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office c
+		ON c.id = u.company_id
+		JOIN sys_office o ON o.id =
+		u.office_id
+		WHERE 1=1
+		<if test="title != null and title != ''">
+			AND a.title LIKE CONCAT('%', #{title}, '%')
+		</if>
+		<if test="operBy != null and operBy != ''">
+			AND u.name = #{operBy}
+		</if>
+		<if test="requestUri != null and requestUri != ''">
+			AND a.request_uri LIKE CONCAT('%', #{requestUri}, '%')
+		</if>
+		<if test="type != null and type != ''">
+			AND a.type =#{type}
+		</if>
+		 <if test="beginDate!=null">
+             <![CDATA[and a.create_date>=#{beginDate}]]> 
+           </if>
+           <if test="endDate!=null">
+            <![CDATA[and a.create_date<date_add(#{endDate},interval 1 day) ]]> 
+           </if>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<select id="get" resultType="com.dsunsoft.module.admin.entity.sys.SysLog">
+		SELECT
+		*
+		FROM sys_log
+		WHERE id = #{id}
+	</select>
+
+	<update id="deleteById">
+		DELETE FROM sys_log
+		WHERE id = #{id}
+	</update>
+
+	<update id="empty">
+		DELETE FROM sys_log
+	</update>
+</mapper>

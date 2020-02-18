@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dsunsoft.module.business.dao.WaterQualityMapper">
+     <sql id="waterQualityColumns">
+		a.id AS "id",
+		
+		a.device_id AS "deviceId",
+		a.device_name AS "deviceName",
+		a.device_no AS "deviceNo",
+		a.time AS "time",
+		
+		a.dissolved_oxygen AS "dissolvedOxygen",
+		a.turbidity AS "turbidity",
+		a.conductivity AS "conductivity",
+		a.chlorophyll AS "chlorophyll",
+		a.chemical_oxygen AS "chemicalOxygen",
+		a.ph AS "ph",
+		a.ammonia_nitrogen AS "ammoniaNitrogen",
+		a.temperature AS "temperature",
+		
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="waterQualityJoins">
+	
+	</sql>
+    
+	<select id="getById" resultType="com.dsunsoft.module.business.entity.WaterQuality" >
+		SELECT 
+			<include refid="waterQualityColumns"/>
+		FROM water_quality a
+		<include refid="waterQualityJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.dsunsoft.module.business.entity.WaterQuality" >
+		SELECT 
+			<include refid="waterQualityColumns"/>
+		FROM water_quality a
+		<include refid="waterQualityJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="deviceId != null and deviceId !=''">
+			  and a.device_id = #{deviceId}
+			</if>
+			<if test="deviceNo != null and deviceNo !=''">
+			  and a.device_no like concat('%',#{deviceNo},'%')
+			</if>
+			<if test="deviceName != null and deviceName !=''">
+			  and a.device_name like concat('%',#{deviceName},'%')
+			</if>
+			<if test="startTime != null">
+			  and a.time >= #{startTime}
+			</if>
+			<if test="endTime != null">
+			  and a.time &lt;= #{endTime}
+			</if>
+		</where>		
+		 ORDER BY a.time DESC 
+	</select>
+	
+	<select id="getLastDataList" resultType="com.dsunsoft.module.business.entity.WaterQuality" >
+		SELECT
+		  <include refid="waterQualityColumns"/>
+		FROM
+		(
+		  SELECT 
+		     device_id,device_no,device_name,max(time) time,max(create_date) create_date
+			FROM
+				water_quality
+			<where>
+				<if test="deviceId != null and deviceId !=''">
+				  and a.device_id = #{deviceId}
+				</if>
+				<if test="deviceNo != null and deviceNo !=''">
+				  and a.device_no like concat('%',#{deviceNo},'%')
+				</if>
+				<if test="deviceName != null and deviceName !=''">
+				  and a.device_name like concat('%',#{deviceName},'%')
+				</if>
+				<if test="startTime != null">
+				  and a.time >= #{startTime}
+				</if>
+				<if test="endTime != null">
+				  and a.time &lt;= #{endTime}
+				</if>
+		    </where>
+			GROUP BY device_id,device_no,device_name
+		)  t1
+		LEFT JOIN water_quality a 
+		ON t1.device_id = a.device_id AND t1.device_no = a.device_no 
+		AND t1.time = a.time AND t1.create_date = a.create_date 
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO water_quality(
+			id,
+			device_id,
+			device_name,
+			device_no,
+			time,
+			dissolved_oxygen,
+			turbidity,
+			conductivity,
+			chlorophyll,
+			chemical_oxygen,
+			ph,
+			ammonia_nitrogen,
+			temperature,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{deviceId},
+			#{deviceName},
+			#{deviceNo},
+			#{time},
+			#{dissolvedOxygen},
+			#{turbidity},
+			#{conductivity},
+			#{chlorophyll},
+			#{chemicalOxygen},
+			#{ph},
+			#{ammoniaNitrogen},
+			#{temperature},
+			#{createBy},
+			#{createDate},
+			#{updateBy},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE water_quality SET 	
+			device_id = #{deviceId},
+			device_no = #{deviceNo},
+			device_name = #{deviceName},
+			time = #{time},
+			dissolved_oxygen = #{dissolvedOxygen},
+			turbidity = #{turbidity},
+			conductivity = #{conductivity},
+			chlorophyll = #{chlorophyll},
+			chemical_oxygen = #{chemicalOxygen},
+			ph = #{ph},
+			ammonia_nitrogen = #{ammoniaNitrogen},
+			temperature = #{temperature},
+			update_by = #{updateBy},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="deleteById">
+		DELETE FROM water_quality
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE water_quality SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.SysMenuMapper" >
+  <resultMap id="BaseResultMap" type="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    <id column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
+    <result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
+    <result column="PID" property="pid" jdbcType="VARCHAR" />
+    <result column="ORDER_INDEX" property="orderIndex" jdbcType="DECIMAL" />
+    <result column="ICON" property="icon" jdbcType="VARCHAR" />
+    <result column="PATH" property="path" jdbcType="VARCHAR" />
+    <result column="LEVEL" property="level" jdbcType="DECIMAL" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+	<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+	<result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+	<result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+	<result column="del_flag" property="delFlag" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="ResultMapWithBLOBs" type="com.dsunsoft.module.admin.entity.sys.SysMenu" extends="BaseResultMap" >
+    <result column="ID_PATH" property="idPath" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    menu_id, menu_name, pid, order_index, create_by, create_date, update_by, 
+    update_date, del_flag, icon, path, level
+  </sql>
+  <sql id="Blob_Column_List" >
+    ID_PATH
+  </sql>
+  
+  <select id="findList" resultMap="ResultMapWithBLOBs" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu">
+  	 select 
+	    <include refid="Base_Column_List" />
+	    ,
+	    <include refid="Blob_Column_List" />
+	    from sys_menu
+	    <where>
+	    	<if test="menuName != null and menuName != ''">
+	    		MENU_NAME like CONCAT('%',#{menuName},'%')
+	    	</if>
+	    </where>
+	    order by ORDER_INDEX
+  </select>
+  
+  <select id="selectListByPage" resultMap="ResultMapWithBLOBs" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+	   select 
+	    <include refid="Base_Column_List" />
+	    ,
+	    <include refid="Blob_Column_List" />
+	    from sys_menu
+	    <where>
+	    	<if test="menuName != null">
+	    		MENU_NAME like CONCAT('%',#{menuName},'%')
+	    	</if>
+	    </where>
+  </select>
+  
+  <select id="getById" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+    select 
+    t1.menu_id, t1.menu_name, t1.pid, t1.order_index, t1.create_by, t1.create_date, t1.update_by, 
+    t1.update_date, t1.del_flag, t1.icon, t1.path, t1.level, t2.menu_name as pname
+    from sys_menu t1 left join sys_menu t2 on t1.pid = t2.menu_id
+    where t1.menu_id = #{menuId,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteById" parameterType="java.lang.String" >
+    delete from sys_menu
+    where MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    insert into sys_menu (menu_id, menu_name, pid, 
+      order_index, create_by, create_date, 
+      update_by, update_date, del_flag, 
+      icon, path, level, 
+      id_path)
+    values (#{menuId,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=VARCHAR}, 
+      #{orderIndex,jdbcType=DECIMAL}, #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER}, 
+      #{icon,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{level,jdbcType=DECIMAL}, 
+      #{idPath,jdbcType=LONGVARCHAR})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    insert into sys_menu
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="menuId != null" >
+        MENU_ID,
+      </if>
+      <if test="menuName != null" >
+        MENU_NAME,
+      </if>
+      <if test="pid != null" >
+        PID,
+      </if>
+      <if test="orderIndex != null" >
+        ORDER_INDEX,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        update_BY,
+      </if>
+      <if test="updateDate != null" >
+        update_DATE,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+      <if test="icon != null" >
+        ICON,
+      </if>
+      <if test="path != null" >
+        PATH,
+      </if>
+      <if test="level != null" >
+        LEVEL,
+      </if>
+      <if test="idPath != null" >
+        ID_PATH,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="menuId != null" >
+        #{menuId,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null" >
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="orderIndex != null" >
+        #{orderIndex,jdbcType=DECIMAL},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null" >
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=DECIMAL},
+      </if>
+      <if test="idPath != null" >
+        #{idPath,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="update" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    update sys_menu
+    <set >
+      <if test="menuName != null" >
+        MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        PID = #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="orderIndex != null" >
+        ORDER_INDEX = #{orderIndex,jdbcType=DECIMAL},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="icon != null" >
+        ICON = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null" >
+        PATH = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        LEVEL = #{level,jdbcType=DECIMAL},
+      </if>
+      <if test="idPath != null" >
+        ID_PATH = #{idPath,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    update sys_menu
+    set MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      PID = #{pid,jdbcType=VARCHAR},
+      ORDER_INDEX = #{orderIndex,jdbcType=DECIMAL},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      ICON = #{icon,jdbcType=VARCHAR},
+      PATH = #{path,jdbcType=VARCHAR},
+      LEVEL = #{level,jdbcType=DECIMAL},
+      ID_PATH = #{idPath,jdbcType=LONGVARCHAR}
+    where MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.dsunsoft.module.admin.entity.sys.SysMenu" >
+    update sys_menu
+    set MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      PID = #{pid,jdbcType=VARCHAR},
+      ORDER_INDEX = #{orderIndex,jdbcType=DECIMAL},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      ICON = #{icon,jdbcType=VARCHAR},
+      PATH = #{path,jdbcType=VARCHAR},
+      LEVEL = #{level,jdbcType=DECIMAL}
+    where MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </update>
+</mapper>

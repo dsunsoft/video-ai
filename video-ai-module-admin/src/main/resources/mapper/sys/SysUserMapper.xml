@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.SysUserMapper">
+     <sql id="userColumns">
+    	a.id,
+    	a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+    	a.login_name AS "loginName",
+    	a.password,
+    	a.no,
+		a.name,
+		a.email,
+		a.phone,
+		a.mobile,
+		a.login_ip as loginIp,
+		a.login_date as loginDate,
+		a.remarks,
+		a.login_flag as loginFlag,
+		a.photo,
+		a.qrcode,
+		a.sign,
+		a.create_by AS "createBy",
+		a.create_date as createDate,
+		a.update_by AS "updateBy",
+		a.update_date as updateDate,
+		a.del_flag as delFlag
+    </sql>
+    
+    <sql id="userJoinsColumns">
+        ,c.name AS "company.name",
+        c.parent_id AS "company.parent.id",
+        c.parent_ids AS "company.parentIds",
+        ca.id AS "company.area.id",
+        ca.name AS "company.area.name",
+        ca.parent_id AS "company.area.parent.id",
+        ca.parent_ids AS "company.area.parentIds",
+        o.name AS "office.name",
+        o.type AS "office.type",
+        o.parent_id AS "office.parent.id",
+        o.parent_ids AS "office.parentIds",
+        oa.id AS "office.area.id",
+        oa.name AS "office.area.name",
+        oa.parent_id AS "office.area.parent.id",
+        oa.parent_ids AS "office.area.parentIds",
+        cu.id AS "company.primaryPerson.id",
+        cu.name AS "company.primaryPerson.name",
+        cu2.id AS "company.deputyPerson.id",
+        cu2.name AS "company.deputyPerson.name",
+        ou.id AS "office.primaryPerson.id",
+        ou.name AS "office.primaryPerson.name",
+        ou2.id AS "office.deputyPerson.id",
+        ou2.name AS "office.deputyPerson.name",
+        sr.roleIds as roleIdStrings,
+        sr.roleNames as roleNames
+    </sql>
+    <sql id="userJoins">
+        LEFT JOIN sys_office c ON c.id = a.company_id
+        LEFT JOIN sys_area ca ON ca.id = c.area_id
+        LEFT JOIN sys_office o ON o.id = a.office_id
+        LEFT JOIN sys_area oa ON oa.id = o.area_id
+        LEFT JOIN sys_user cu ON cu.id = c.primary_person
+        LEFT JOIN sys_user cu2 ON cu2.id = c.deputy_person
+        LEFT JOIN sys_user ou ON ou.id = o.primary_person
+        LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
+        LEFT JOIN (
+            SELECT urr.user_id,GROUP_CONCAT(sr.role_id separator ',') AS roleIds, GROUP_CONCAT(sr.role_name separator '，') AS roleNames from sys_user_role urr 
+			        LEFT JOIN sys_role sr ON sr.role_id = urr.role_id 
+			GROUP BY urr.user_id
+        ) sr ON sr.user_id = a.id
+    </sql>
+    <!-- 分页查询用户信息 -->
+	<select id="findList" resultType="com.dsunsoft.module.admin.entity.sys.SysUser">
+		SELECT
+			<include refid="userColumns"/>
+			<include refid="userJoinsColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		<if test="role != null and role.id != null and role.id != ''">
+			JOIN sys_user_role ur ON ur.user_id = a.id AND ur.role_id = #{role.id}
+		</if>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="company != null and company.id != null and company.id != ''">
+			AND (c.id = #{company.id} OR c.parent_ids LIKE  CONCAT('%,', #{company.id}, ',%')) 
+		</if>
+		<if test="office != null and office.id != null and office.id != ''">
+			AND (o.id = #{office.id} OR o.parent_ids LIKE  CONCAT('%,', #{office.id}, ',%')) 
+		</if>
+		<!-- 如果不是超级管理员，则不显示超级管理员用户 -->
+		<if test="currentUser != null and currentUser.loginName  != null and currentUser.loginName != 'admin'">
+			AND a.id != '1'
+		</if>
+		<if test="loginName != null and loginName != ''">
+			AND a.login_name like  CONCAT('%', #{loginName}, '%') 
+		</if>
+		<if test="name != null and name != ''">
+			AND a.name like   CONCAT('%', #{name}, '%') 
+		</if>
+	</select>
+     
+    <select id="getByName" resultType="com.dsunsoft.module.admin.entity.sys.SysUser">
+      SELECT
+		<include refid="userColumns"/>
+	   FROM sys_user a 
+	   WHERE a.login_name = #{userName}
+    </select>
+  
+    <select id="getById" resultType="com.dsunsoft.module.admin.entity.sys.SysUser" parameterType="java.lang.String" >
+     SELECT
+		<include refid="userColumns"/>
+	   FROM sys_user a 
+	   WHERE a.id = #{id}
+    </select>
+  
+   <select id="getRoleByUserId" resultType="com.dsunsoft.module.admin.entity.sys.SysRole">
+		select
+		  t1.role_id as roleId, t2.role_name as roleName, t2.role_type as roleType,role_code as roleCode
+		from sys_user_role t1 left join sys_role t2 on t1.role_id = t2.role_id
+		where t1.user_id = #{id} 
+	</select>
+	
+   <select id="selectRoleByUserId" parameterType="java.util.List" resultType="com.dsunsoft.module.admin.entity.sys.SysUser">
+  	  select user_id userId,GROUP_CONCAT(t2.role_name) roleName 
+  	  	from sys_user_role t1 left join sys_role t2 on t1.role_id = t2.role_id
+	  where t1.user_id in 
+        <foreach  collection="list" item="id" separator="," open="(" close=")">
+        	#{id}
+        </foreach>
+	  	GROUP BY t1.user_id 
+   </select>
+  
+   <select id="selectUserRole" parameterType="com.dsunsoft.module.admin.entity.sys.SysUser" resultType="java.lang.String">
+  	 select role_id as roleId from sys_user_role where user_id = #{userid}
+   </select>
+  
+  <!-- 删除用户和角色关联表数据 -->
+    <delete id="deleteUserRole" parameterType="com.dsunsoft.module.admin.entity.sys.SysUser">
+        DELETE FROM sys_user_role WHERE user_id = #{id}
+    </delete>
+    
+     <!-- <insert id="insertUserRole" parameterType="com.dsunsoft.module.admin.entity.sys.SysUserRole">
+	    insert into sys_user_role(user_role_id, user_id, role_id) values (
+	        #{userRoleId},#{userId},#{roleId}
+	    )
+	  </insert> -->
+  
+    <!-- 插入用户和角色关联表数据 -->
+    <insert id="insertUserRole" parameterType="com.dsunsoft.module.admin.entity.sys.SysUser">
+        INSERT INTO sys_user_role (user_role_id, user_id, role_id) 
+        <foreach collection="roleList"  index="index" item="role" separator=" union all ">
+            SELECT #{role.userRoleId},#{role.userId},#{role.roleId} from dual 
+        </foreach>
+    </insert>
+    
+    
+    <!-- 插入用户 -->
+    <insert id="insert" parameterType="com.dsunsoft.module.admin.entity.sys.SysUser">
+        INSERT INTO sys_user(
+            id, 
+            company_id, 
+            office_id, 
+            login_name, 
+            password, 
+            no, 
+            name, 
+            email, 
+            phone, 
+            mobile, 
+            create_by, 
+            create_date, 
+            update_by, 
+            update_date, 
+            remarks, 
+            login_flag, 
+            photo, 
+            qrcode,
+            del_flag
+        ) VALUES (
+            #{id}, 
+            #{company.id}, 
+            #{office.id}, 
+            #{loginName}, 
+            #{password}, 
+            #{no}, 
+            #{name}, 
+            #{email}, 
+            #{phone}, 
+            #{mobile}, 
+            #{createBy}, 
+            #{createDate}, 
+            #{updateBy}, 
+            #{updateDate}, 
+            #{remarks}, 
+            #{loginFlag}, 
+            #{photo}, 
+            #{qrCode},
+            #{delFlag}
+        )
+    </insert>
+    
+    <!-- 更新用户 -->
+    <update id="update" parameterType="com.dsunsoft.module.admin.entity.sys.SysUser">
+        UPDATE sys_user SET 
+            company_id = #{company.id}, 
+            office_id = #{office.id}, 
+            login_name = #{loginName}, 
+            password = #{password}, 
+            no = #{no}, 
+            name = #{name}, 
+            email = #{email}, 
+            phone = #{phone}, 
+            mobile = #{mobile}, 
+            update_by = #{updateBy}, 
+            update_date = #{updateDate}, 
+            remarks = #{remarks},
+            login_flag = #{loginFlag},
+            photo = #{photo},
+            qrcode = #{qrCode}
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getSelectByNonAdmin" resultType="com.dsunsoft.common.entity.ng.NgSelect"> 
+	 SELECT id as `value`,`name` as text from sys_user a where login_flag='1' and
+	 EXISTS (SELECT user_id from sys_user_role b where a.id=b.user_id and role_id!='1')
+    </select>
+</mapper>

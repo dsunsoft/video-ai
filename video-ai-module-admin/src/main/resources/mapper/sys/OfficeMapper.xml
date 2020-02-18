@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dsunsoft.module.admin.dao.sys.OfficeMapper">
+    <sql id="officeColumns">
+		a.id,
+		a.parent_id AS parentId,
+		a.parent_ids as parentIds,
+		a.code,
+		a.name,
+		a.sort,
+		a.area_id as areaId,
+		a.type,
+		a.grade,
+		a.address,
+		a.zip_code as zipCode,
+		a.master as master,
+		a.phone as phone,
+		a.fax as fax,
+		a.email as email,
+		a.USEABLE as useable,
+		a.PRIMARY_PERSON as primaryPerson,
+		a.DEPUTY_PERSON as deputyPerson,
+		a.remarks,
+		a.create_by AS "createBy",
+		a.create_date as createDate,
+		a.update_by AS "updateBy",
+		a.update_date as updateDate,
+		a.del_flag as delFlag,
+		p.name AS parentName,
+		ar.name AS areaName,
+        ar.parent_ids AS areaParentIds,
+        pp.name AS primaryPersonName,
+        dp.name AS deputyPersonName,
+        offType.label AS typeLabel,
+        offGrade.label AS gradeLabel
+	</sql>
+	
+	<sql id="officeJoins">
+        LEFT JOIN sys_office p ON p.id = a.parent_id
+        LEFT JOIN sys_area ar ON ar.id = a.area_id
+        LEFT JOIN sys_user pp ON pp.id = a.primary_person
+        LEFT JOIN sys_user dp ON dp.id = a.deputy_person
+        LEFT JOIN (
+        SELECT
+		    t11.id AS dictValueId,
+		    t11.dict_type_id AS dictTypeId,
+		    t11.label AS label,
+		    t11.VALUE,
+		    t11.sort AS sort,
+		    t22.type AS type,
+		    t22.description
+		FROM
+		    sys_dict_value t11,
+		    sys_dict_type t22
+		WHERE
+		    t11.dict_type_id = t22.id
+		) offType ON a.type = offType.value and offType.type = 'sys_office_type'
+		LEFT JOIN (
+		        SELECT
+		    t11.id AS dictValueId,
+		    t11.dict_type_id AS dictTypeId,
+		    t11.label AS label,
+		    t11.VALUE,
+		    t11.sort AS sort,
+		    t22.type AS type,
+		    t22.description
+		FROM
+		    sys_dict_value t11,
+		    sys_dict_type t22
+		WHERE
+		    t11.dict_type_id = t22.id
+		) offGrade ON a.grade = offGrade.value and offGrade.type = 'sys_office_grade'
+    </sql>
+	
+	<select id="getById" resultType="com.dsunsoft.module.admin.entity.sys.Office">
+		SELECT
+			<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_office(
+			id, 
+			parent_id, 
+			parent_ids, 
+			name, 
+			sort,
+			area_id,
+			code, 
+			type, 
+			grade, 
+			address, 
+			zip_code, 
+			master, 
+			phone, 
+			fax, 
+			email, 
+			USEABLE, 
+			PRIMARY_PERSON, 
+			DEPUTY_PERSON, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{parentId}, 
+			#{parentIds}, 
+			#{name}, 
+			#{sort}, 
+			#{areaId}, 
+			#{code}, 
+			#{type}, 
+			#{grade}, 
+			#{address}, 
+			#{zipCode}, 
+			#{master}, 
+			#{phone}, 
+			#{fax}, 
+			#{email}, 
+			#{useable}, 
+			#{primaryPerson}, 
+			#{deputyPerson}, 
+			#{createBy}, 
+			#{createDate}, 
+			#{updateBy}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_office SET 
+			parent_id = #{parentId}, 
+			parent_ids = #{parentIds}, 
+			name = #{name}, 
+			sort = #{sort}, 
+			area_id = #{areaId}, 
+			code = #{code}, 
+			type = #{type}, 
+			grade = #{grade}, 
+            address = #{address}, 
+            zip_code = #{zipCode}, 
+            master = #{master}, 
+            phone = #{phone}, 
+            fax = #{fax}, 
+            email = #{email}, 
+            USEABLE = #{useable}, 
+            PRIMARY_PERSON = #{primaryPerson}, 
+            DEPUTY_PERSON = #{deputyPerson}, 
+			update_by = #{updateBy}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE sys_office SET 
+			parent_id = #{parentId}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="deleteById">
+		DELETE FROM sys_office 
+		WHERE id = #{id} OR parent_ids LIKE CONCAT('%,', #{id}, ',%')
+	</update>
+	
+	<update id="deleteByLogic">
+		UPDATE sys_office SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE CONCAT('%,', #{id}, ',%')
+	</update>
+	
+   
+   
+   <select id="findList" resultType="com.dsunsoft.module.admin.entity.sys.Office" parameterType="com.dsunsoft.module.admin.entity.sys.Office">
+     select 
+       <include refid="officeColumns"/>
+        FROM sys_office a
+        <include refid="officeJoins"/>
+        <where>
+            <if test="name != null and name != ''">
+                a.name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="type != null and type != ''">
+              AND A.type = #{type}
+            </if>
+        </where>
+        order by a.type,a.sort
+  </select>
+</mapper>
